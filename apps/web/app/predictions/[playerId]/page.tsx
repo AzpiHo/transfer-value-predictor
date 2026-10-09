@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PredictionPanel } from "@/app/predictions/[playerId]/prediction-panel";
+import { loadPrediction } from "@/lib/load-prediction";
 import { findSamplePlayer } from "@/lib/sample-players";
 
 export const metadata: Metadata = {
@@ -29,7 +30,7 @@ export default async function PredictionPage({
           ? `${player.positionLabel} · ${player.leagueLabel} · ${player.club}`
           : "This id is not on the placeholder roster. The mock still returns a direction and a magnitude."}
       </p>
-      <PredictionPanel playerId={playerId} />
+      <PredictionPanel {...await loadPrediction(playerId)} />
     </>
   );
 }

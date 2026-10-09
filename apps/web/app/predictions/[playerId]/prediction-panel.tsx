@@ -1,64 +1,13 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
 import { directionLabel, formatEur } from "@/lib/format";
-import { mockPrediction } from "@/lib/mock";
 import type { Prediction } from "@/lib/types";
 
-type Source = "api" | "local";
-
-export function PredictionPanel({ playerId }: { playerId: string }) {
-  const [prediction, setPrediction] = useState<Prediction | null>(null);
-  const [source, setSource] = useState<Source>("local");
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ?? "";
-
-    mockPrediction(playerId)
-      .then((local) => {
-        setPrediction((current) => current ?? local);
-      })
-      .catch(() => {
-        setError("The local placeholder could not be built.");
-      });
-
-    if (!apiBase) return () => controller.abort();
-
-    fetch(`${apiBase}/predictions/${encodeURIComponent(playerId)}`, {
-      signal: controller.signal,
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error(`API responded ${response.status}`);
-        return response.json() as Promise<Prediction>;
-      })
-      .then((body) => {
-        setPrediction(body);
-        setSource("api");
-        setError(null);
-      })
-      .catch((caught: unknown) => {
-        if (caught instanceof DOMException && caught.name === "AbortError") return;
-        setSource("local");
-      });
-
-    return () => controller.abort();
-  }, [playerId]);
-
-  if (!prediction) {
-    return (
-      <section className="prediction" aria-busy="true">
-        <article className="hero-card">
-          <p className="kicker">Loading placeholder</p>
-          <p className="figure">—</p>
-          {error ? <p className="note">{error}</p> : null}
-        </article>
-      </section>
-    );
-  }
-
+export function PredictionPanel({
+  prediction,
+  source,
+}: {
+  prediction: Prediction;
+  source: "api" | "local";
+}) {
   return (
     <section className="prediction">
       <article className="hero-card">

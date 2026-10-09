@@ -88,7 +88,8 @@ Copy `.env.example`. Do not commit `.env` or real keys.
 | `API_PORT` | Prediction API port. Default `8000`. |
 | `WEB_PORT` | Dashboard port. Default `3000`. |
 | `WEB_ORIGIN` | Browser origin allowed to call the API. |
-| `NEXT_PUBLIC_API_BASE_URL` | API base URL baked into the dashboard. |
+| `API_BASE_URL` | Base URL the dashboard server uses when it renders a prediction. Falls back to `NEXT_PUBLIC_API_BASE_URL`. |
+| `NEXT_PUBLIC_API_BASE_URL` | Same API base, available to browser code if a later client calls it. |
 
 ## Tests
 

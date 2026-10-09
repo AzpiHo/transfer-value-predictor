@@ -1,20 +1,19 @@
+import { createHash } from "node:crypto";
+
 import type { Direction, Prediction } from "@/lib/types";
 
 const LEAGUES = ["EPL", "LA_LIGA", "SERIE_A", "BUNDESLIGA", "LIGUE_1"];
 
-async function sha256Prefix(playerId: string): Promise<number> {
-  const digest = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(playerId),
+/**
+ * Same digest rule as services/api/src/ftv_api/mock.py.
+ * Node's crypto keeps this off the Web Crypto API, which browsers withhold
+ * on non-HTTPS origins other than localhost.
+ */
+export function mockPrediction(playerId: string): Prediction {
+  const digest = Number.parseInt(
+    createHash("sha256").update(playerId).digest("hex").slice(0, 8),
+    16,
   );
-  const hex = [...new Uint8Array(digest)]
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
-  return Number.parseInt(hex.slice(0, 8), 16);
-}
-
-export async function mockPrediction(playerId: string): Promise<Prediction> {
-  const digest = await sha256Prefix(playerId);
   const bucket = digest % 5;
   let direction: Direction = "down";
   let delta = -(((Math.floor(digest / 5) % 160) + 1) * 50_000);
